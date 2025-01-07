@@ -19,5 +19,10 @@
          (t "~/Syncthing/org-roam")))
   (org-roam-db-autosync-mode))
 
+
+;; anki-editor
+(use-package anki-editor
+  :after org)
+
 (provide 'personal-org)
 ;;; personal-org.el ends here
