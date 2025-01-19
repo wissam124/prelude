@@ -22,6 +22,7 @@
 
 ;; anki-editor
 (use-package anki-editor
+  :ensure t
   :after org)
 
 (provide 'personal-org)
