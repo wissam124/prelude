@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Add anki note type basic
+# key: baz
+# --
+* UUID `(org-id-uuid)`
+:PROPERTIES:
+:ANKI_NOTE_TYPE: basic
+:END:
+** Front
+$1
+** Back
+$0

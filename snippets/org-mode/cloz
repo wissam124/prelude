@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Add anki note cloze
+# key: cloz
+# --
+* UUID `(org-id-uuid)`
+:PROPERTIES:
+:ANKI_NOTE_TYPE: cloze
+:END:
+** Test
+$1
+** Extra
+$0
