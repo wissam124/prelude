@@ -8,6 +8,9 @@
 
 ;;; Code:
 
+;; org-mode
+(add-hook 'org-mode-hook #'turn-on-org-cdlatex)
+
 ;; org-roam
 (use-package org-roam
   :ensure t
