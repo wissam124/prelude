@@ -8,21 +8,7 @@
 
 ;;; Code:
 
-;; (require 'lsp-mode)
-
-;; (use-package company-lsp
-;;   :requires company
-;;   :config
-;;   (push 'company-lsp company-backends)
-
-;;   ;; Disable client-side cache because the LSP server does a better job.
-;;   (setq company-transformers nil
-;;         company-lsp-async t
-;;         company-lsp-cache-candidates nil))
-
-;; (setq lsp-ui-doc-enable nil)
-
-
+;; eglot
 (use-package eglot
   :ensure t
   :defer t
