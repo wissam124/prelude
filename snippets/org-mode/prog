@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Add anki note type programming with all fields
+# key: prog
+# condition: (not (and (org-entry-get nil "ANKI_FIELD_SOURCE" t) (org-entry-get nil "ANKI_FIELD_SECTION" t)))
+# --
+* UUID `(org-id-uuid)`
+:PROPERTIES:
+:ANKI_NOTE_TYPE: programming
+:END:
+** Front
+** Question Source Code
+** Back
+** Answer Source Code
+** Source
+** Section
