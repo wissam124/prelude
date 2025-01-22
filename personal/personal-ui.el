@@ -19,5 +19,9 @@
   (setq sml/theme nil)
   :hook (after-init . sml/setup))
 
+
+;; set default directory for find-file
+(setq default-directory "~/")
+
 (provide 'personal-ui)
 ;;; personal-ui.el ends here
