@@ -1,18 +1,18 @@
 # -*- mode: snippet -*-
-# name: Add anki note type basic_with_refs with latex-enclosed fields
-# key: bar
+# name: Add anki note type cloze_with_refs with latex-enclosed fields
+# key: clor
 # condition: (and (org-entry-get nil "ANKI_FIELD_SOURCE" t) (org-entry-get nil "ANKI_FIELD_SECTION" t))
 # --
 *** UUID `(org-id-uuid)`
 :PROPERTIES:
 :ANKI_FORMAT: nil
-:ANKI_NOTE_TYPE: basic_with_refs
+:ANKI_NOTE_TYPE: cloze_with_refs
 :END:
-**** Front
+**** Text
 [latex]
 $1
 [/latex]
-**** Back
+**** Extra
 [latex]
 $0
 [/latex]
