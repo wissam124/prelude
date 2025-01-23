@@ -15,11 +15,11 @@ jobs:
           days-before-issue-stale: 30
           days-before-issue-close: 30
           stale-issue-label: "stale"
-          exempt-issue-labels: "high priority, good first issue, pinned"
+          exempt-issue-labels: "bug, high priority, good first issue, pinned"
           stale-issue-message: >-
             This issue has been automatically marked as stale because it has not
             had any recent activity. It will be closed soon if no further
-            activity occurs. Thank you for your contribution and understanding!
+            activity occurs. Thank you for your understanding!
           close-issue-message: >-
             This issue been automatically closed due to lack of activity. Feel free to re-open it
             if you ever come back to it.
@@ -31,6 +31,6 @@ jobs:
             had any recent activity. It will be closed soon if no further
             activity occurs. Thank you for your contribution and understanding!
           close-pr-message: >-
-            This issue been automatically closed due to lack of activity. Feel free to re-open it
+            This pull request been automatically closed due to lack of activity. Feel free to re-open it
             if you ever come back to it.
           repo-token: ${{ secrets.GITHUB_TOKEN }}

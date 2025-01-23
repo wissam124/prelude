@@ -14,6 +14,7 @@
 * Add a F# module.
 * Auto-install `use-package`.
 * Add `prelude-vertico` module. Vertico a simpler alternative to `ivy-mode` and supersedes Selectrum.
+* Make it possible to configure the TypeScript format action using `prelude-ts-format-action`.
 
 ### Changes
 
@@ -24,6 +25,8 @@
 * Replace prelude-go backend with `lsp` instead of unmaintained tools.
 * Use `rust-analyzer` as language server for prelude-rust and provide nicer syntax highlighting with `tree-sitter`.
 * Use `js2-mode` for Node.js specific `.cjs` and `.mjs` extensions.
+* Add `prelude-undo-tree` custom variable: allows user disable
+  undo-tree integration. Enabled by default to maintain backward-compatibility.
 
 ### Bugs fixed
 
