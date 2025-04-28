@@ -1,17 +1,16 @@
 # -*- mode: snippet -*-
 # name: Add anki note type cloze_with_refs
 # key: clor
-# condition: (not (and (org-entry-get nil "ANKI_FIELD_SOURCE" t) (org-entry-get nil "ANKI_FIELD_SECTION" t)))
 # --
 * UUID `(org-id-uuid)`
 :PROPERTIES:
 :ANKI_NOTE_TYPE: cloze_with_refs
 :END:
 ** Text
-$3
-** Extra
-$0
-** Source
 $1
-** Section
+** Extra
 $2
+** Source
+$3
+** Section
+$0
