@@ -28,5 +28,18 @@
   :ensure t
   :after org)
 
+
+(use-package anki-editor-view
+  :config
+  (setq anki-editor-view-files (list "~/Syncthing/anki_decks/")))
+
+
 (provide 'personal-org)
 ;;; personal-org.el ends here
+
+
+(setq org-anki-model-fields
+      '(("basic_with_refs" "Front"  "Back")
+        ("cloze_with_refs" "Text" "Extra" "Source" "Section")
+        ("Basic-Auto-Latex (with refs)" "ID" "Front" "Back" "Extra" "Source" "Section")
+        ))
