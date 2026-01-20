@@ -8,10 +8,13 @@
 
 ;;; Code:
 
-;; Allow hash to be entered
-(when (memq window-system '(mac ns))
-  (global-set-key (kbd "M-3")
-                  (lambda () (interactive) (insert "£"))))
+;; Set Righ Option to none so that macOS can produce special characters.
+;; This only applies in GUI emacs
+(when (and (eq system-type 'darwin)
+           (eq window-system 'ns))
+  (setq mac-option-modifier 'meta)
+  (setq ns-right-alternate-modifier 'none))
+
 
 (provide 'personal-macos)
 ;;; personal-macos.el ends here
