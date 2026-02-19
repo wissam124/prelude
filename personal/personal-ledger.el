@@ -26,7 +26,11 @@
   (add-hook 'ledger-mode-hook #'company-mode)
 
   ;; Clean reports with colors
-  (ledger-report-native-highlighting-arguments '("--color=always")))
+  (ledger-report-native-highlighting-arguments '("--color=always"))
+
+  ;; Remove prompt for xact
+  (ledger-add-transaction-prompt-for-text nil))
+
 
 (provide 'personal-ledger)
 ;;; personal-ledger.el ends here
