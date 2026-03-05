@@ -13,14 +13,14 @@
   :mode ("\\.journal\\'" "\\.hledger\\'")
   :custom
   ;; Fix compatability issues with ledger
-  (ledger-binary-path "~/Syncthing/hledger/script/hledger.sh")
+  (ledger-binary-path "~/Syncthing/finance/script/hledger.sh")
   (ledger-mode-should-check-version nil)  ; Stop 'ledger' version checks errors
   (ledger-report-auto-width nil)          ; Fixes the --columns error
   (ledger-report-links-in-register nil)   ; Fixes the --prepend-format error
   (ledger-default-date-format ledger-iso-date-format)
 
   ;; Use chart of accounts defined in external file
-  (ledger-accounts-file "~/Syncthing/hledger/accounts.journal")
+  (ledger-accounts-file "~/Syncthing/finance/accounts.journal")
 
   ;; Visuals
   (add-hook 'ledger-mode-hook #'company-mode)
