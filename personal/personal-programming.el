@@ -21,6 +21,19 @@
     python-mode
     text-mode) . yas-minor-mode-on))
 
-
 (use-package yasnippet-snippets
+  :ensure t)
+
+;; envrc
+(use-package envrc
+  :ensure t)
+
+(when (executable-find "direnv")
+  (add-hook 'after-init-hook #'envrc-global-mode))
+
+
+;; vertico
+(use-package vertico
+  :init
+  (vertico-mode)
   :ensure t)

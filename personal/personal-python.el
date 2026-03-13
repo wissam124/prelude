@@ -8,8 +8,5 @@
 
 ;;; Code:
 
-;; Set IPython as default python interpreter
-(setq python-shell-interpreter "ipython")
-
 (provide 'personal-python)
 ;;; personal-python.el ends here

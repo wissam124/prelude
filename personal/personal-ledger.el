@@ -32,5 +32,33 @@
   (ledger-add-transaction-prompt-for-text nil))
 
 
+(defun my/ledger-accounts-list-multi-file ()
+  "Replacement for `ledger-accounts-list' that handles lists of files."
+  (let ((files (if (listp ledger-accounts-file)
+                   ledger-accounts-file
+                 (list ledger-accounts-file))))
+    ;; Check if the first element of our list is actually a string/path
+    (if (and (car files) (stringp (car files)))
+        (with-temp-buffer
+          (dolist (f files)
+            (let ((expanded-f (expand-file-name f)))
+              (if (file-exists-p expanded-f)
+                  (insert-file-contents expanded-f)
+                (message "Ledger-mode warning: %s not found" expanded-f))))
+          (ledger-accounts-list-in-buffer))
+      ;; Fallback to the original logic: scan the current buffer
+      (ledger-accounts-list-in-buffer))))
+
+;; This tells Emacs: "When someone calls ledger-accounts-list,
+;; use my function instead."
+(advice-add 'ledger-accounts-list :override #'my/ledger-accounts-list-multi-file)
+
+
+(use-package flycheck-ledger
+  :ensure t
+  :after (ledger-mode flycheck)
+  :hook (ledger-mode . flycheck-mode))
+
+
 (provide 'personal-ledger)
 ;;; personal-ledger.el ends here
