@@ -1,6 +1,6 @@
 ;;; prelude-editor.el --- Emacs Prelude: enhanced core editing experience.
 ;;
-;; Copyright © 2011-2025 Bozhidar Batsov
+;; Copyright © 2011-2026 Bozhidar Batsov
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: https://github.com/bbatsov/prelude
@@ -84,8 +84,6 @@
 (show-smartparens-global-mode +1)
 
 (define-key prog-mode-map (kbd "M-(") (prelude-wrap-with "("))
-;; FIXME: pick terminal friendly binding
-;; (define-key prog-mode-map (kbd "M-[") (prelude-wrap-with "["))
 (define-key prog-mode-map (kbd "M-\"") (prelude-wrap-with "\""))
 
 ;; disable annoying blink-matching-paren
@@ -95,7 +93,6 @@
 (require 'diminish)
 
 ;; meaningful names for buffers with the same name
-(require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 (setq uniquify-separator "/")
 (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
@@ -149,7 +146,7 @@
 (super-save-mode +1)
 (diminish 'super-save-mode)
 
-(defadvice set-buffer-major-mode (after set-major-mode activate compile)
+(define-advice set-buffer-major-mode (:after (buffer) prelude-set-major-mode)
   "Set buffer major mode according to `auto-mode-alist'."
   (let* ((name (buffer-name buffer))
          (mode (assoc-default name auto-mode-alist 'string-match)))
@@ -232,13 +229,9 @@
 (setq avy-background t)
 (setq avy-style 'at-full)
 
-;; anzu-mode enhances isearch & query-replace by showing total matches and current match position
-(require 'anzu)
-(diminish 'anzu-mode)
-(global-anzu-mode)
-
-(global-set-key (kbd "M-%") 'anzu-query-replace)
-(global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
+;; show match count during isearch and query-replace
+(setq isearch-lazy-count t)
+(setq lazy-count-prefix-format "(%s/%s) ")
 
 ;; dired - reuse current buffer by pressing 'a'
 (put 'dired-find-alternate-file 'disabled nil)
@@ -266,7 +259,7 @@
 (browse-kill-ring-default-keybindings)
 (global-set-key (kbd "s-y") 'browse-kill-ring)
 
-(defadvice exchange-point-and-mark (before deactivate-mark activate compile)
+(define-advice exchange-point-and-mark (:before (&rest _) prelude-deactivate-mark)
   "When called with no active region, do not activate mark."
   (interactive
    (list (not (region-active-p)))))
@@ -274,7 +267,7 @@
 (require 'tabify)
 (defmacro with-region-or-buffer (func)
   "When called with no active region, call FUNC on current buffer."
-  `(defadvice ,func (before with-region-or-buffer activate compile)
+  `(define-advice ,func (:before (&rest _) prelude-region-or-buffer)
      (interactive
       (if mark-active
           (list (region-beginning) (region-end))
@@ -284,30 +277,22 @@
 (with-region-or-buffer untabify)
 
 ;; automatically indenting yanked text if in programming-modes
-(defun yank-advised-indent-function (beg end)
+(defun prelude-yank-indent-function (beg end)
   "Do indentation, as long as the region isn't too large."
   (if (<= (- end beg) prelude-yank-indent-threshold)
       (indent-region beg end nil)))
 
-(defmacro advise-commands (advice-name commands class &rest body)
-  "Apply advice named ADVICE-NAME to multiple COMMANDS.
+(defun prelude-yank-indent-advice (&rest _args)
+  "Indent yanked text if in a programming mode.
+Does not indent if the mode is in `prelude-indent-sensitive-modes'."
+  (when (and (not (member major-mode prelude-indent-sensitive-modes))
+             (or (derived-mode-p 'prog-mode)
+                 (member major-mode prelude-yank-indent-modes)))
+    (let ((transient-mark-mode nil))
+      (prelude-yank-indent-function (region-beginning) (region-end)))))
 
-The body of the advice is in BODY."
-  `(progn
-     ,@(mapcar (lambda (command)
-                 `(defadvice ,command (,class ,(intern (concat (symbol-name command) "-" advice-name)) activate)
-                    ,@body))
-               commands)))
-
-(advise-commands "indent" (yank yank-pop) after
-  "If current mode is one of `prelude-yank-indent-modes',
-indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (not (member major-mode prelude-indent-sensitive-modes))
-           (or (derived-mode-p 'prog-mode)
-               (member major-mode prelude-yank-indent-modes)))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
+(advice-add 'yank :after #'prelude-yank-indent-advice)
+(advice-add 'yank-pop :after #'prelude-yank-indent-advice)
 
 ;; abbrev config
 (add-hook 'text-mode-hook 'abbrev-mode)
@@ -336,26 +321,13 @@ indent yanked text (with prefix arg don't indent)."
       (expand-file-name "semanticdb" prelude-savefile-dir))
 
 ;; Compilation from Emacs
-(defun prelude-colorize-compilation-buffer ()
-  "Colorize a compilation mode buffer."
-  (interactive)
-  ;; we don't want to mess with child modes such as grep-mode, ack, ag, etc
-  (when (eq major-mode 'compilation-mode)
-    (let ((inhibit-read-only t))
-      (ansi-color-apply-on-region (point-min) (point-max)))))
-
 (require 'compile)
-(setq compilation-ask-about-save nil  ; Just save before compiling
-      compilation-always-kill t       ; Just kill old compile processes before
-                                        ; starting the new one
-      compilation-scroll-output 'first-error ; Automatically scroll to first
-                                        ; error
-      )
+(setq compilation-ask-about-save nil
+      compilation-always-kill t
+      compilation-scroll-output 'first-error)
 
-;; Colorize output of Compilation Mode, see
-;; http://stackoverflow.com/a/3072831/355252
-(require 'ansi-color)
-(add-hook 'compilation-filter-hook #'prelude-colorize-compilation-buffer)
+;; Colorize output of Compilation Mode
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
 ;; enable Prelude's keybindings
 (prelude-mode t)
@@ -404,24 +376,30 @@ indent yanked text (with prefix arg don't indent)."
     ("%" . apply-operation-to-number-at-point)
     ("'" . operate-on-number-at-point)))
 
-(defadvice server-visit-files (before parse-numbers-in-lines (files proc &optional nowait) activate)
-  "Open file with emacsclient with cursors positioned on requested line.
-Most of console-based utilities prints filename in format
-'filename:linenumber'.  So you may wish to open filename in that format.
-Just call:
+(defun prelude-server-visit-files-parse-numbers (args)
+  "Parse line numbers from filenames for emacsclient.
+Most console-based utilities print filenames in the format
+'filename:linenumber'.  So you may wish to open filename in
+that format.  Just call:
 
   emacsclient filename:linenumber
 
-and file 'filename' will be opened and cursor set on line 'linenumber'"
-  (ad-set-arg 0
-              (mapcar (lambda (fn)
-                        (let ((name (car fn)))
-                          (if (string-match "^\\(.*?\\):\\([0-9]+\\)\\(?::\\([0-9]+\\)\\)?$" name)
-                              (cons
-                               (match-string 1 name)
-                               (cons (string-to-number (match-string 2 name))
-                                     (string-to-number (or (match-string 3 name) ""))))
-                            fn))) files)))
+and file 'filename' will be opened and cursor set on line
+'linenumber'."
+  (list
+   (mapcar (lambda (fn)
+             (let ((name (car fn)))
+               (if (string-match "^\\(.*?\\):\\([0-9]+\\)\\(?::\\([0-9]+\\)\\)?$" name)
+                   (cons
+                    (match-string 1 name)
+                    (cons (string-to-number (match-string 2 name))
+                          (string-to-number (or (match-string 3 name) ""))))
+                 fn)))
+           (car args))
+   (cadr args)
+   (caddr args)))
+
+(advice-add 'server-visit-files :filter-args #'prelude-server-visit-files-parse-numbers)
 
 ;; use settings from .editorconfig file when present
 (require 'editorconfig)

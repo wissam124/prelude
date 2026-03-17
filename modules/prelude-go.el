@@ -29,17 +29,13 @@
 ;;; Code:
 
 (require 'prelude-programming)
-(require 'prelude-lsp)
 
 (prelude-require-packages '(go-mode
-                            go-projectile
-                            lsp-mode
-                            lsp-ui
-                            company
                             gotest))
 
-(when prelude-projectile
-  (require 'go-projectile))
+;; Use go-ts-mode when the tree-sitter grammar is available
+(when (treesit-ready-p 'go t)
+  (add-to-list 'major-mode-remap-alist '(go-mode . go-ts-mode)))
 
 ;; Ignore go test -c output files
 (add-to-list 'completion-ignored-extensions ".test")
@@ -67,6 +63,9 @@
       (when goimports
         (setq gofmt-command goimports)))
 
+    ;; format before save
+    (add-hook 'before-save-hook #'gofmt-before-save nil t)
+
     ;; stop whitespace being highlighted
     (whitespace-toggle-options '(tabs))
 
@@ -78,16 +77,14 @@
   (if (fboundp 'yas-global-mode)
       (yas-global-mode))
 
-  ;; configure lsp for go
-  (defun lsp-go-install-save-hooks ()
-    (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    (add-hook 'before-save-hook #'lsp-organize-imports t t))
-  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
-  (add-hook 'go-mode-hook #'lsp-deferred)
+  (add-hook 'go-mode-hook #'prelude-lsp-enable)
+  (add-hook 'go-ts-mode-hook #'prelude-lsp-enable)
 
   (setq prelude-go-mode-hook 'prelude-go-mode-defaults)
   (add-hook 'go-mode-hook (lambda ()
-                            (run-hooks 'prelude-go-mode-hook))))
+                            (run-hooks 'prelude-go-mode-hook)))
+  (add-hook 'go-ts-mode-hook (lambda ()
+                               (run-hooks 'prelude-go-mode-hook))))
 
 (provide 'prelude-go)
 ;;; prelude-go.el ends here

@@ -1,6 +1,6 @@
 ;;; prelude-erlang.el --- Emacs Prelude: Erlang programming support.
 ;;
-;; Copyright © 2011-2025 Gleb Peregud
+;; Copyright © 2011-2026 Gleb Peregud
 ;;
 ;; Author: Gleb Peregud <gleber.p@gmail.com>
 
@@ -42,17 +42,20 @@
   (require 'projectile))
 
 (when (require 'erlang-start nil t)
-
-  (with-eval-after-load 'erlang-mode
-    (flymake-mode))
-
   (when (not (null wrangler-path))
     (add-to-list 'load-path wrangler-path)
     (require 'wrangler)))
 
-(when prelude-projectile
-  (add-hook 'erlang-mode-hook (lambda ()
-                                (setq erlang-compile-function 'projectile-compile-project))))
+(defun prelude-erlang-mode-defaults ()
+  (subword-mode +1)
+  (prelude-lsp-enable)
+  (when prelude-projectile
+    (setq erlang-compile-function 'projectile-compile-project)))
+
+(setq prelude-erlang-mode-hook 'prelude-erlang-mode-defaults)
+
+(add-hook 'erlang-mode-hook (lambda ()
+                              (run-hooks 'prelude-erlang-mode-hook)))
 
 (provide 'prelude-erlang)
 

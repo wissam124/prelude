@@ -1,6 +1,6 @@
 ;;; prelude-c.el --- Emacs Prelude: cc-mode configuration.
 ;;
-;; Copyright © 2011-2025 Bozhidar Batsov
+;; Copyright © 2011-2026 Bozhidar Batsov
 ;;
 ;; Author: Bozhidar Batsov <bozhidar@batsov.com>
 ;; URL: https://github.com/bbatsov/prelude
@@ -32,10 +32,18 @@
 
 (require 'prelude-programming)
 
+;; Use tree-sitter modes when grammars are available
+(when (treesit-ready-p 'c t)
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode)))
+(when (treesit-ready-p 'cpp t)
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode)))
+
 (defun prelude-c-mode-common-defaults ()
   (setq c-default-style "k&r"
         c-basic-offset 4)
-  (c-set-offset 'substatement-open 0))
+  (c-set-offset 'substatement-open 0)
+  (subword-mode +1)
+  (prelude-lsp-enable))
 
 (setq prelude-c-mode-common-hook 'prelude-c-mode-common-defaults)
 
@@ -43,6 +51,10 @@
 ;; java-mode, php-mode, etc
 (add-hook 'c-mode-common-hook (lambda ()
                                 (run-hooks 'prelude-c-mode-common-hook)))
+(add-hook 'c-ts-mode-hook (lambda ()
+                             (run-hooks 'prelude-c-mode-common-hook)))
+(add-hook 'c++-ts-mode-hook (lambda ()
+                               (run-hooks 'prelude-c-mode-common-hook)))
 
 (defun prelude-makefile-mode-defaults ()
   (whitespace-toggle-options '(tabs))
